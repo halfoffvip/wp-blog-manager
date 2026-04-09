@@ -91,7 +91,7 @@ export async function uploadImageToDrive(
     "metadata",
     new Blob([JSON.stringify(metadata)], { type: "application/json" })
   );
-  form.append("file", new Blob([content], { type: mimeType }));
+  form.append("file", new Blob([new Uint8Array(content)], { type: mimeType }));
 
   const res = await fetch(
     "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,webContentLink,webViewLink",
