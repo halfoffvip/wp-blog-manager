@@ -1,10 +1,11 @@
 import Google from "next-auth/providers/google";
 import type { NextAuthOptions } from "next-auth";
 
-// Use NEXTAUTH_URL if explicitly set, otherwise build it from Vercel's
-// automatic VERCEL_URL variable (which is always the correct deployment URL).
-const baseUrl = process.env.NEXTAUTH_URL
-  ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+// If NEXTAUTH_URL is not set (or is wrong), fall back to Vercel's automatic
+// VERCEL_URL variable which always points to the correct deployment URL.
+if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
+  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -36,6 +37,4 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // Explicitly set the URL so NextAuth always builds the correct callback URI
-  url: baseUrl,
 };
