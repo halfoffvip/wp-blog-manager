@@ -21,6 +21,7 @@ export function ProjectsScreen({ onSelectProject }: Props) {
     defaultCategory: "",
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/projects")
@@ -32,6 +33,7 @@ export function ProjectsScreen({ onSelectProject }: Props) {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setError(null);
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
@@ -39,9 +41,15 @@ export function ProjectsScreen({ onSelectProject }: Props) {
         body: JSON.stringify(form),
       });
       const project = await res.json();
+      if (!res.ok) {
+        setError(project.error ?? "Failed to create project");
+        return;
+      }
       setProjects((prev) => [project, ...prev]);
       setShowNew(false);
       setForm({ name: "", wpUrl: "", wpUsername: "", wpAppPassword: "", defaultCategory: "" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -218,6 +226,9 @@ export function ProjectsScreen({ onSelectProject }: Props) {
                   placeholder="Blog"
                 />
               </div>
+              {error && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+              )}
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"

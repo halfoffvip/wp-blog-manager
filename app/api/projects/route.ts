@@ -42,8 +42,14 @@ export async function POST(req: NextRequest) {
     updatedAt: now,
   };
 
-  await saveProject(session.user.email, project);
-  return NextResponse.json(project, { status: 201 });
+  try {
+    await saveProject(session.user.email, project);
+    return NextResponse.json(project, { status: 201 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to save project";
+    console.error("POST /api/projects error:", err);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function PUT(req: NextRequest) {
